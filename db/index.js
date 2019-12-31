@@ -13,7 +13,6 @@ const db = {
 
 db.models.Course = require('./models/course.js') (sequelize);
 
-db.models.User = require('./models/user.js')
-(sequelize);
+db.models.User = require('./models/user.js') (sequelize);
 
 module.exports = db;
