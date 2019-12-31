@@ -1,5 +1,29 @@
 'use strict';
 
+//Accessing the database connection
+const { sequelize, models } = require('./db');
+const { User, Course } = models;
+
+const users = require('./routes/users');
+const courses = require('./routes/courses');
+
+console.log('Testing the database connection');
+//Testing database connection, synchronizing the models and creating entries
+(async () => {
+  try {
+    console.log('Database Connected');
+    await sequelize.authenticate();
+  } catch(error) {
+      if (error.name === 'SequelizeValidationError') {
+        const errors = error.errors.map(err => err.message);
+        console.error('Validation errors: ', errors);
+      } else {
+        throw error;
+      }
+  }
+})();
+
+
 // load modules
 const express = require('express');
 const morgan = require('morgan');
@@ -14,7 +38,10 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// TODO setup your api routes here
+/*****  TODO setup your api routes here *****/
+
+app.use('/api/users', users);
+app.use('/api/courses', courses);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
@@ -22,6 +49,24 @@ app.get('/', (req, res) => {
     message: 'Welcome to the REST API project!',
   });
 });
+
+
+
+/////COURSE Routes
+
+//GET route returns a list of courses
+
+//GET route returns a specific course for provided ID
+
+//POST route creates a course and sets the Location header to the URI for the course, returns no content
+
+//PUT route updates a course, returns no content
+
+//DELETE route deletes a course, returns no content
+
+
+
+
 
 // send 404 if no other route matched
 app.use((req, res) => {

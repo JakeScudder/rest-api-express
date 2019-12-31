@@ -11,11 +11,9 @@ const db = {
   models: {},
 }
 
-db.models.Course = require('./course.js') (sequelize);
+db.models.Course = require('./models/course.js') (sequelize);
 
-sequelize.authenticate()
-  .then(() => {
-    console.log('connected to DB');
-  });
+db.models.User = require('./models/user.js')
+(sequelize);
 
 module.exports = db;
