@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 const { sequelize, models } = require('./db');
 
 const users = require('./routes/users.js');
-const courses = require('./routes/courses.js');
+// const courses = require('./routes/courses.js');
 
 console.log('Testing the database connection');
 //Testing database connection, synchronizing the models and creating entries
@@ -56,24 +56,6 @@ app.get('/', (req, res) => {
     message: 'Welcome to the REST API project!',
   });
 });
-
-
-
-/////COURSE Routes
-
-//GET route returns a list of courses
-
-//GET route returns a specific course for provided ID
-
-//POST route creates a course and sets the Location header to the URI for the course, returns no content
-
-//PUT route updates a course, returns no content
-
-//DELETE route deletes a course, returns no content
-
-
-
-
 
 // send 404 if no other route matched
 app.use((req, res) => {

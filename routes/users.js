@@ -1,15 +1,17 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
+const Sequelize = require('sequelize');
 
 const { sequelize, models } = require('../db');
-const { User, Course } = models;
+const { User } = models;
 
 /////USER Routes
 
 //GET route that returns the currently authenticated user
 router.get('/users', async (req, res) => {
   const users = await User.findAll();
+  console.log(users);
   res.json(users);
   res.status(200).end();
 })
