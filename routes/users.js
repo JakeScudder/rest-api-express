@@ -12,15 +12,15 @@ const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
 
 //Authentication
-const authenticateUser = (req, res, next) => {
+const authenticateUser = async (req, res, next) => {
   let message = null;
   const credentials = auth(req);
-  const name = credentials.name
   if (credentials) {
     // const user = User.find(u => u.emailAddress === credentials.name);
-    const user = User.find({
-      where: {emailAddress: name }
+    const user = await User.findOne({
+      where: { emailAddress: credentials.name }
     });
+    console.log(user);
     if (user) {
       const authenticated = bcryptjs
         .compareSync(credentials.pass, user.password)
@@ -50,7 +50,6 @@ const authenticateUser = (req, res, next) => {
 //GET route that returns the currently authenticated user
 router.get('/users', authenticateUser, async (req, res) => {
   const user = req.currentUser;
-  console.log(user);
   res.status(200).json({
     name: user.firstName,
     username: user.emailAddress,

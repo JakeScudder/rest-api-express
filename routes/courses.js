@@ -5,22 +5,22 @@ const Sequelize = require('sequelize');
 const { check, validationResult } = require('express-validator');
 
 const { sequelize, models } = require('../db');
-const { Course } = models;
+const { User, Course } = models;
 
 //Require password hashing and authentication
 const auth = require('basic-auth');
 const bcryptjs = require('bcryptjs');
 
 //Authentication
-const authenticateUser = (req, res, next) => {
+const authenticateUser = async (req, res, next) => {
   let message = null;
   const credentials = auth(req);
-  const name = credentials.name
   if (credentials) {
     // const user = User.find(u => u.emailAddress === credentials.name);
-    const user = User.find({
-      where: {emailAddress: name }
+    const user = await User.findOne({
+      where: { emailAddress: credentials.name }
     });
+    console.log(user);
     if (user) {
       const authenticated = bcryptjs
         .compareSync(credentials.pass, user.password)
@@ -75,12 +75,9 @@ router.post('/courses', [
   }
   //Create course
   try {
-    const course = await Course.create({
-      title: req.body.title,
-      description: req.body.description
-    })
+    const course = await Course.create(req.body);
     res.status(201).json(course);
-  } catch(error) {
+  } catch (error) {
     res.json({message: error.message})
   }
 });
