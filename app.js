@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 const { sequelize, models } = require('./db');
 
 const users = require('./routes/users.js');
-// const courses = require('./routes/courses.js');
+const courses = require('./routes/courses.js');
 
 console.log('Testing the database connection');
 //Testing database connection, synchronizing the models and creating entries
@@ -48,7 +48,7 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 /*****  TODO setup your api routes here *****/
 
 app.use('/api', users);
-// app.use('/api', courses);
+app.use('/api', courses);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
