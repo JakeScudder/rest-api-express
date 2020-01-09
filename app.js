@@ -20,24 +20,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 const users = require('./routes/users.js');
 const courses = require('./routes/courses.js');
 
-// console.log('Testing the database connection');
-// //Testing database connection, synchronizing the models and creating entries
-// (async () => {
-//   try {
-//     console.log('Database Connected');
-//     await sequelize.authenticate();
-//   } catch(error) {
-//       if (error.name === 'SequelizeValidationError') {
-//         const errors = error.errors.map(err => err.message);
-//         console.error('Validation errors: ', errors);
-//       } else {
-//         throw error;
-//       }
-//   }
-// })();
-
-
-
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 
