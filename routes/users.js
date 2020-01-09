@@ -1,17 +1,16 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-const Sequelize = require('sequelize');
 
-const { sequelize, models } = require('../db');
-const { User } = models;
+//Access User model from the database
+const User = require('../db/models').User;
 
+//Validation, Authorization, and Password Hashing 
 const { check, validationResult } = require('express-validator');
-
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
 
-//Authentication
+//Authenticatw User Function
 const authenticateUser = async (req, res, next) => {
   let message = null;
   const credentials = auth(req);
@@ -51,7 +50,8 @@ const authenticateUser = async (req, res, next) => {
 router.get('/users', authenticateUser, async (req, res) => {
   const user = req.currentUser;
   res.status(200).json({
-    name: user.firstName,
+    firstName: user.firstName,
+    lastName: user.lastName,
     username: user.emailAddress,
   })
 })
@@ -80,17 +80,35 @@ router.post('/users',[
   //Create the user
   let user;
   try {
-    user = await User.create({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      emailAddress: req.body.emailAddress,
-      password: bcryptjs.hashSync(req.body.password)
-    });
-    res
+    let email = req.body.emailAddress
+    let emailTest = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email)
+    if (emailTest) {
+      user = await User.create({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        emailAddress: email,
+        password: bcryptjs.hashSync(req.body.password)
+      });
+      res
       .status(201)
-      .redirect("/");
+      .location("/")
+      .end();
+    } else {
+      res.status(400).json({message: "Email is not Valid"});
+    }
   } catch (error) {
     console.log(error);
+    if (error.name === "SequelizeUniqueConstraintError"){
+        user = await User.build({
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          emailAddress: req.body.email,
+          password: bcryptjs.hashSync(req.body.password)
+        });
+        res.status(409).json({message: "Email already exists, please log in."})
+    } else {
+      throw error;
+    }
   }
 })
 

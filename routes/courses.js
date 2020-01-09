@@ -1,11 +1,14 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-const Sequelize = require('sequelize');
+// const Sequelize = require('sequelize');
 const { check, validationResult } = require('express-validator');
 
-const { sequelize, models } = require('../db');
-const { User, Course } = models;
+// const { sequelize, models } = require('../db');
+// const { User, Course } = models;
+
+const Course = require('../db/models').Course;
+const User = require('../db/models').User
 
 //Require password hashing and authentication
 const auth = require('basic-auth');
@@ -16,11 +19,10 @@ const authenticateUser = async (req, res, next) => {
   let message = null;
   const credentials = auth(req);
   if (credentials) {
-    // const user = User.find(u => u.emailAddress === credentials.name);
     const user = await User.findOne({
       where: { emailAddress: credentials.name }
     });
-    console.log(user);
+    // console.log(user);
     if (user) {
       const authenticated = bcryptjs
         .compareSync(credentials.pass, user.password)
@@ -48,14 +50,16 @@ const authenticateUser = async (req, res, next) => {
 
 //GET route returns a list of courses
 router.get('/courses', async (req, res) => {
-  const courses = await Course.findAll();
-  res.status(200).json(courses);
+  const courses = await Course.findAll({
+    attributes:{exclude: ['createdAt', 'updatedAt']}
+  });
+  res.status(200).json({courses});
 });
 
 //GET route returns a specific course for provided ID
 router.get('/courses/:id', async (req, res) => {
-  const course = await Course.findByPk(req.params.id)
-  res.status(200).json(course).json(course.userId);
+  const course = await Course.findByPk(req.params.id, {attributes:{exclude: ['createdAt', 'updatedAt']}});
+  res.status(200).json(course);
 });
 
 //POST route creates a course and sets the Location header to the URI for the course, returns no content
@@ -78,7 +82,8 @@ router.post('/courses', [
     const course = await Course.create(req.body);
     res.status(201).json(course);
   } catch (error) {
-    res.json({message: error.message})
+    console.log(error);
+    res.status(400).json({message: error.message})
   }
 });
 
@@ -92,6 +97,7 @@ router.put('/courses/:id', [
     .withMessage('Please include your "course description"'),
 ], authenticateUser, async (req, res) => {
   const errors = validationResult(req);
+  const user = req.currentUser;
   //If there are errors
   if(!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => error.msg);
@@ -101,10 +107,14 @@ router.put('/courses/:id', [
   try {
     let course = await Course.findByPk(req.params.id);
     if (course) {
-      course.title = req.body.title;
-      course.description = req.body.description;
-      await course.update(req.body)
-      res.status(204).end();
+      if (user.id === course.userId) {
+        course.title = req.body.title;
+        course.description = req.body.description;
+        await course.update(req.body)
+        res.status(204).end();
+      } else {
+        res.status(403).json({message: "Sorry, you don't have authorization to update this course."})
+      }  
     } else {
       res.status(404).json({message: "Course not found"});
     }
@@ -116,10 +126,16 @@ router.put('/courses/:id', [
 //DELETE route deletes a course, returns no content
 router.delete('/courses/:id', authenticateUser, async (req, res) => {
   try {
+    const user = req.currentUser;
     let course = await Course.findByPk(req.params.id);
     if (course) {
-      await course.destroy();
-      res.redirect("/courses");
+      if (user.id === course.userId) {
+        await course.destroy();
+        res.status(204).end();
+      } else {
+        res.status(403).json({message: "Sorry, you don't have authorization to delete this course."})
+      }
+      
     }
   } catch(error) {
     res.status(500).json({message: error.message})

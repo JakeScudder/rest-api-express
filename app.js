@@ -17,28 +17,24 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: false }))
 
-
-//Accessing the database connection
-const { sequelize, models } = require('./db');
-
 const users = require('./routes/users.js');
 const courses = require('./routes/courses.js');
 
-console.log('Testing the database connection');
-//Testing database connection, synchronizing the models and creating entries
-(async () => {
-  try {
-    console.log('Database Connected');
-    await sequelize.authenticate();
-  } catch(error) {
-      if (error.name === 'SequelizeValidationError') {
-        const errors = error.errors.map(err => err.message);
-        console.error('Validation errors: ', errors);
-      } else {
-        throw error;
-      }
-  }
-})();
+// console.log('Testing the database connection');
+// //Testing database connection, synchronizing the models and creating entries
+// (async () => {
+//   try {
+//     console.log('Database Connected');
+//     await sequelize.authenticate();
+//   } catch(error) {
+//       if (error.name === 'SequelizeValidationError') {
+//         const errors = error.errors.map(err => err.message);
+//         console.error('Validation errors: ', errors);
+//       } else {
+//         throw error;
+//       }
+//   }
+// })();
 
 
 
