@@ -10,7 +10,7 @@ const { check, validationResult } = require('express-validator');
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
 
-//Authenticatw User Function
+//Authenticate User Function
 const authenticateUser = async (req, res, next) => {
   let message = null;
   const credentials = auth(req);
@@ -72,7 +72,7 @@ router.post('/users',[
     .withMessage('Please type your "password"'),
 ], async (req, res) => {
   const errors = validationResult(req);
-  //If there are errors
+  //If there are validation errors
   if(!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => error.msg);
     return res.status(400).json({errors: errorMessages});
@@ -97,7 +97,6 @@ router.post('/users',[
       res.status(400).json({message: "Email is not Valid"});
     }
   } catch (error) {
-    console.log(error);
     if (error.name === "SequelizeUniqueConstraintError"){
         user = await User.build({
           firstName: req.body.firstName,

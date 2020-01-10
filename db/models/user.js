@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
     password: {
       type:Sequelize.STRING
     }
-  }, { timestamps:false , sequelize });
+  }, {  sequelize });
 
   User.associate = (models) => {
     User.hasMany(models.Course, { foreignKey: 'userId' });

@@ -1,12 +1,10 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-// const Sequelize = require('sequelize');
+
 const { check, validationResult } = require('express-validator');
 
-// const { sequelize, models } = require('../db');
-// const { User, Course } = models;
-
+//Require Databases
 const Course = require('../db/models').Course;
 const User = require('../db/models').User
 
@@ -80,7 +78,7 @@ router.post('/courses', [
   //Create course
   try {
     const course = await Course.create(req.body);
-    res.status(201).json(course);
+    res.status(201).location('/courses:id').json(course);
   } catch (error) {
     console.log(error);
     res.status(400).json({message: error.message})
