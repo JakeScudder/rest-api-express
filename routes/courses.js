@@ -49,14 +49,26 @@ const authenticateUser = async (req, res, next) => {
 //GET route returns a list of courses
 router.get('/courses', async (req, res) => {
   const courses = await Course.findAll({
-    attributes:{exclude: ['createdAt', 'updatedAt']}
+    attributes: { exclude: ['createdAt', 'updatedAt']}, 
+    include: {
+        model: User,
+        attributes: {exclude: ['password','createdAt', 'updatedAt'] 
+      },
+    }
   });
   res.status(200).json({courses});
 });
 
 //GET route returns a specific course for provided ID
 router.get('/courses/:id', async (req, res) => {
-  const course = await Course.findByPk(req.params.id, {attributes:{exclude: ['createdAt', 'updatedAt']}});
+  const course = await Course.findByPk(req.params.id, {
+    attributes:{exclude: ['createdAt', 'updatedAt']},
+    include: {
+      model: User,
+      attributes: {exclude: ['password','createdAt', 'updatedAt'] 
+    },
+  }
+  });
   res.status(200).json(course);
 });
 
@@ -78,7 +90,7 @@ router.post('/courses', [
   //Create course
   try {
     const course = await Course.create(req.body);
-    res.status(201).location('/courses:id').json(course);
+    res.status(201).location('/courses/:id').json(course);
   } catch (error) {
     console.log(error);
     res.status(400).json({message: error.message})
