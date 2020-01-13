@@ -90,7 +90,7 @@ router.post('/courses', [
   //Create course
   try {
     const course = await Course.create(req.body);
-    res.status(201).location('/courses/:id').json(course);
+    res.status(201).location('/courses/' + course.id).end();
   } catch (error) {
     console.log(error);
     res.status(400).json({message: error.message})
